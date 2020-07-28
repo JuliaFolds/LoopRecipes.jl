@@ -30,4 +30,7 @@ include("unroll.jl")
 include("prefetch.jl")
 include("simd.jl")
 
+# Use README as the docstring of the module:
+@doc read(joinpath(dirname(@__DIR__), "README.md"), String) LoopRecipes
+
 end

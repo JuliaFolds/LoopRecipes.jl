@@ -1,5 +1,28 @@
 """
     prefetching(xs)
+
+Prefetch each boxed element in `xs`.  It can be used when `xs` is a
+nested data structure (e.g., vector of vectors, vector of strings).
+Do nothing when the element of `xs` is not boxed.
+
+# Examples
+```jldoctest
+julia> using LoopRecipes
+
+julia> sum(sum, prefetching([[1], [2, 3], [4, 5, 6]]))
+21
+
+julia> using FLoops
+
+julia> @floop begin
+           acc = 0
+           for x in prefetching([[1], [2, 3], [4, 5, 6]])
+               acc += sum(x)
+           end
+           acc
+       end
+21
+```
 """
 prefetching(xs) = xs |> Prefetching()
 

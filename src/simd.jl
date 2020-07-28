@@ -8,7 +8,7 @@ Return a foldable that iterates over indices of `xs` using
 width.
 
 # Examples
-```jldoctest simdeachindex
+```jldoctest simdeachindex; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
 julia> foreach(simdeachindex(ones(10))) do i
@@ -63,8 +63,10 @@ Return a foldable that iterates over index-value pairs of `xs` using
 `width` is an integer or a `Val` of integer that specifies the SIMD
 width.
 
+See also [`simdeachindex`](@ref).
+
 # Examples
-```jldoctest simdpairs
+```jldoctest simdpairs; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
 julia> foreach(simdpairs(collect(100:100:1000))) do (i, v)
@@ -80,9 +82,31 @@ i = 10
 v = 1000
 ```
 
-Since the same loop body (aka `op` or `rf`) is used for all stages of
-the iteration, the accumulator `acc` should be properly reduced
-depending on the type of `v`:
+Thanks to `setindex!` overload on `VecRange`, it is straightforward to
+use it for implementing a simple mapping.
+
+```jldoctest simdpairs
+julia> function double!(ys, xs)
+           @assert axes(ys) == axes(xs)
+           foreach(simdpairs(xs)) do (i, x)
+               @inbounds ys[i] = 2x
+           end
+           return ys
+       end;
+
+julia> double!(zeros(5), ones(5))
+5-element Array{Float64,1}:
+ 2.0
+ 2.0
+ 2.0
+ 2.0
+ 2.0
+```
+
+When using `simdpairs` for reduction, the accumulator `acc` should be
+properly reduced depending on the type of `v`.  This is because the
+same loop body (aka `op` or `rf`) is used for all stages of the
+iteration.
 
 ```jldoctest simdpairs
 julia> using SIMD  # for Vec
@@ -93,6 +117,51 @@ julia> foldl(simdpairs(collect(1:10)); init = 0) do acc, (_, v)
        end
 110
 ```
+
+Here is another example for demonstrating how `v isa Vec` works:
+
+```jldoctest simdpairs
+julia> foldl(simdpairs(collect(10:24)); init = 0) do acc, (i, v)
+           @show first(i), acc, v
+           (v isa Vec ? acc : sum(acc)) + v
+       end
+(first(i), acc, v) = (1, 0, <4 x Int64>[10, 11, 12, 13])
+(first(i), acc, v) = (5, <4 x Int64>[10, 11, 12, 13], <4 x Int64>[14, 15, 16, 17])
+(first(i), acc, v) = (9, <4 x Int64>[24, 26, 28, 30], <4 x Int64>[18, 19, 20, 21])
+(first(i), acc, v) = (13, <4 x Int64>[42, 45, 48, 51], 22)
+(first(i), acc, v) = (14, 208, 23)
+(first(i), acc, v) = (15, 231, 24)
+255
+```
+
+Observe that:
+
+(1) When at the first iteration (`first(i) == 1`), `acc` is `0` (as
+specified by `init = 0`).  This is broadcast to a `Vec` because `v` is
+a `Vec`.  See that `acc` in the second iteration (`first(i) == 5`) is
+a `Vec` (`<4 x Int64>[10, 11, 12, 13]`).
+
+(2) At the second and third iterations, both `acc` and `v` are `Vec`,
+yielding an `acc::Vec` for the next iteration.
+
+(3) At the iteration `first(i) == 13`, `v` is not `Vec` (i.e., we are
+in the reminder loop).  Thus, `acc` (`<4 x Int64>[42, 45, 48, 51]`) is
+reduced a scalar before adding `v` (`22`).  See that `acc` in the next
+iteration is a scalar (`208`).
+
+(4) Final two iterations deals with scalar `acc` and `v`.  Note that
+we do not need a special code since `sum(::Number)` is an identity
+function.
+
+!!! note
+
+    Since [`simdeachindex`](@ref) and thus `simdpairs` uses
+    `Transducers.__foldl__` instead of `Base.iterate` to implement the
+    iteration, these four stages are all properly type-stabilized.
+
+These may look complicated but the rule is simple: the returned value
+of the reducing function (i.e., accumulation result) should have the
+same "shape" as the input value `v`.
 """
 simdpairs(xs) = simdpairs(Val{4}(), xs)
 simdpairs(width::Integer, xs) = simdpairs(Val{width}(), xs)
@@ -113,7 +182,7 @@ width.
 # Examples
 For dense arrays, `simdstored` is identical to [`simdpairs`](@ref):
 
-```jldoctest simdstored
+```jldoctest simdstored; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
 julia> foreach(simdstored(collect(1:10))) do (i, v)
@@ -157,6 +226,40 @@ julia> foldl(simdstored(xs); init = 0) do acc, (_, v)
            (v isa Vec ? acc : sum(acc)) + x
        end
 30
+```
+
+Sparse-dense dot product:
+
+```jldoctest simdstored
+julia> function simddot(xs::SparseVector, ys)
+           init = zero(eltype(xs)) * zero(eltype(ys))
+           foldl(simdstored(xs); init = init) do acc, (i, x)
+               Base.@_inline_meta
+               (x isa Vec ? acc : sum(acc)) + @inbounds x * ys[i]
+           end
+       end;
+
+julia> simddot(xs, [1:10;])
+87
+```
+
+Identical function written using FLoops.jl:
+
+```jldoctest simdstored
+julia> using FLoops
+
+julia> function simddot′(xs::SparseVector, ys)
+           @floop begin
+               acc = zero(eltype(xs)) * zero(eltype(ys))
+               for (i, x) in simdstored(xs)
+                   acc = (x isa Vec ? acc : sum(acc)) + @inbounds x * ys[i]
+               end
+               acc
+           end
+       end;
+
+julia> simddot′(xs, [1:10;])
+87
 ```
 """
 simdstored(xs) = simdstored(Val{4}(), xs)

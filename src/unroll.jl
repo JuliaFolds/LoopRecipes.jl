@@ -1,6 +1,31 @@
 """
     unroll(factor, xs)
     unroll(factor, indexstyle, xs)
+
+Unroll an array `xs` by a given `factor` (an integer or a `Val` of
+integer).
+
+# Examples
+```jldoctest
+julia> using LoopRecipes
+
+julia> sum(unroll(4, 1:10))
+55
+
+julia> sum(unroll(Val(4), 1:10))  # equivalent
+55
+
+julia> using FLoops
+
+julia> @floop begin
+           acc = 0
+           for x in unroll(4, 1:10)
+               acc += x
+           end
+           acc
+       end
+55
+```
 """
 unroll
 unroll(factor::Union{Val,Integer}, ::IndexLinear, xs) = Unroll(asval(factor), Val{1}(), xs)
