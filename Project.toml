@@ -7,4 +7,5 @@ version = "0.1.0"
 Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 
 [compat]
+Transducers = "0.4"
 julia = "1"
