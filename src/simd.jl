@@ -38,18 +38,18 @@ end
     if i <= n
         vacc = @next(rf, init, lane + i)
         i += W
-    end
-    while i <= n
-        vacc = @next(rf, vacc, lane + i)
-        i += W
+        while i <= n
+            vacc = @next(rf, vacc, lane + i)
+            i += W
+        end
     end
     if i <= foldable.lastindex
         acc = @next(rf, vacc, i)
         i += 1
-    end
-    while i <= foldable.lastindex
-        acc = @next(rf, acc, i)
-        i += 1
+        while i <= foldable.lastindex
+            acc = @next(rf, acc, i)
+            i += 1
+        end
     end
     return complete(rf, acc)
 end
