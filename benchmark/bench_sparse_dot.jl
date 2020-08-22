@@ -7,7 +7,7 @@ using Random: Random
 using SIMD: Vec
 using SparseArrays: SparseVector, sprandn
 
-Random.seed(1234)
+Random.seed!(1234)
 
 const SUITE = BenchmarkGroup()
 

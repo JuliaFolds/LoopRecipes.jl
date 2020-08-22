@@ -4,7 +4,7 @@ using BenchmarkTools
 using LoopRecipes
 using Random: Random, shuffle!
 
-Random.seed(1234)
+Random.seed!(1234)
 
 const SUITE = BenchmarkGroup()
 
