@@ -1,3 +1,5 @@
+/.benchmarkci
+/benchmark/*.json
 /docs/build
 /docs/site
 Manifest.toml
