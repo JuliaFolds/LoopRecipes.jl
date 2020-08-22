@@ -11,7 +11,7 @@ width.
 ```jldoctest simdeachindex; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
-julia> foreach(simdeachindex(ones(10))) do i
+julia> foreach(simdeachindex(4, ones(10))) do i
            @show i
        end;
 i = VecRange{4}(1)
@@ -69,7 +69,7 @@ See also [`simdeachindex`](@ref).
 ```jldoctest simdpairs; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
-julia> foreach(simdpairs(collect(100:100:1000))) do (i, v)
+julia> foreach(simdpairs(4, collect(100:100:1000))) do (i, v)
            @show i v
        end;
 i = VecRange{4}(1)
@@ -121,7 +121,7 @@ julia> foldl(simdpairs(collect(1:10)); init = 0) do acc, (_, v)
 Here is another example for demonstrating how `v isa Vec` works:
 
 ```jldoctest simdpairs
-julia> foldl(simdpairs(collect(10:24)); init = 0) do acc, (i, v)
+julia> foldl(simdpairs(4, collect(10:24)); init = 0) do acc, (i, v)
            @show first(i), acc, v
            (v isa Vec ? acc : sum(acc)) + v
        end
@@ -185,7 +185,7 @@ For dense arrays, `simdstored` is identical to [`simdpairs`](@ref):
 ```jldoctest simdstored; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
-julia> foreach(simdstored(collect(1:10))) do (i, v)
+julia> foreach(simdstored(4, collect(1:10))) do (i, v)
            @show i v
        end;
 i = VecRange{4}(1)
@@ -206,7 +206,7 @@ julia> using SparseArrays
 
 julia> xs = SparseVector(10, [1, 3, 4, 7, 8], [1, 2, 3, 4, 5]);
 
-julia> foreach(simdstored(xs)) do (i, v)
+julia> foreach(simdstored(4, xs)) do (i, v)
            @show i v
        end;
 i = <4 x Int64>[1, 3, 4, 7]
