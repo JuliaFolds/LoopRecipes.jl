@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: 1.5
+          version: 1.4
 
       # Cache ~/.julia/artifacts (https://discourse.julialang.org/t/35484)
       - uses: actions/cache@v1
