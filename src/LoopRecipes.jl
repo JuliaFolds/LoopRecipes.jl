@@ -25,6 +25,7 @@ using Transducers:
     unwrap,
     wrap,
     wrapping
+using VectorizationBase: pick_vector_width
 
 include("utils.jl")
 include("unroll.jl")

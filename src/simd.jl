@@ -20,7 +20,7 @@ i = 9
 i = 10
 ```
 """
-simdeachindex(xs) = simdeachindex(Val{4}(), xs)
+simdeachindex(xs) = simdeachindex(Val{pick_vector_width(eltype(xs))}(), xs)
 simdeachindex(width::Integer, xs) = simdeachindex(Val{width}(), xs)
 simdeachindex(width::Val, xs) = SIMDEachIndex(width, firstindex(xs), lastindex(xs))
 # TODO: support CartesianIndices
@@ -163,7 +163,7 @@ These may look complicated but the rule is simple: the returned value
 of the reducing function (i.e., accumulation result) should have the
 same "shape" as the input value `v`.
 """
-simdpairs(xs) = simdpairs(Val{4}(), xs)
+simdpairs(xs) = simdpairs(Val{pick_vector_width(eltype(xs))}(), xs)
 simdpairs(width::Integer, xs) = simdpairs(Val{width}(), xs)
 function simdpairs(width::Val, xs)
     @inline getpair(i) = i => @inbounds xs[i]
@@ -262,7 +262,7 @@ julia> simddot′(xs, [1:10;])
 87
 ```
 """
-simdstored(xs) = simdstored(Val{4}(), xs)
+simdstored(xs) = simdstored(Val{pick_vector_width(eltype(xs))}(), xs)
 simdstored(width::Integer, xs) = simdstored(Val{width}(), xs)
 simdstored(width::Val, xs) = simdpairs(width, xs)
 function simdstored(width::Val, xs::AbstractSparseArray)
