@@ -3,8 +3,11 @@ module BenchSparseDot
 using BenchmarkTools
 using LinearAlgebra: dot
 using LoopRecipes
+using Random: Random
 using SIMD: Vec
 using SparseArrays: SparseVector, sprandn
+
+Random.seed(1234)
 
 const SUITE = BenchmarkGroup()
 

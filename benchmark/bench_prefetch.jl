@@ -2,7 +2,9 @@ module BenchPrefetch
 
 using BenchmarkTools
 using LoopRecipes
-using Random: shuffle!
+using Random: Random, shuffle!
+
+Random.seed(1234)
 
 const SUITE = BenchmarkGroup()
 
