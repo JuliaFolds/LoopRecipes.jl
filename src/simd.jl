@@ -11,7 +11,7 @@ width.
 ```jldoctest simdeachindex; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
-julia> foreach(simdeachindex(ones(10))) do i
+julia> foreach(simdeachindex(4, ones(10))) do i
            @show i
        end;
 i = VecRange{4}(1)
@@ -20,7 +20,7 @@ i = 9
 i = 10
 ```
 """
-simdeachindex(xs) = simdeachindex(Val{4}(), xs)
+simdeachindex(xs) = simdeachindex(Val{pick_vector_width(eltype(xs))}(), xs)
 simdeachindex(width::Integer, xs) = simdeachindex(Val{width}(), xs)
 simdeachindex(width::Val, xs) = SIMDEachIndex(width, firstindex(xs), lastindex(xs))
 # TODO: support CartesianIndices
@@ -69,7 +69,7 @@ See also [`simdeachindex`](@ref).
 ```jldoctest simdpairs; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
-julia> foreach(simdpairs(collect(100:100:1000))) do (i, v)
+julia> foreach(simdpairs(4, collect(100:100:1000))) do (i, v)
            @show i v
        end;
 i = VecRange{4}(1)
@@ -121,7 +121,7 @@ julia> foldl(simdpairs(collect(1:10)); init = 0) do acc, (_, v)
 Here is another example for demonstrating how `v isa Vec` works:
 
 ```jldoctest simdpairs
-julia> foldl(simdpairs(collect(10:24)); init = 0) do acc, (i, v)
+julia> foldl(simdpairs(4, collect(10:24)); init = 0) do acc, (i, v)
            @show first(i), acc, v
            (v isa Vec ? acc : sum(acc)) + v
        end
@@ -163,7 +163,7 @@ These may look complicated but the rule is simple: the returned value
 of the reducing function (i.e., accumulation result) should have the
 same "shape" as the input value `v`.
 """
-simdpairs(xs) = simdpairs(Val{4}(), xs)
+simdpairs(xs) = simdpairs(Val{pick_vector_width(eltype(xs))}(), xs)
 simdpairs(width::Integer, xs) = simdpairs(Val{width}(), xs)
 function simdpairs(width::Val, xs)
     @inline getpair(i) = i => @inbounds xs[i]
@@ -185,7 +185,7 @@ For dense arrays, `simdstored` is identical to [`simdpairs`](@ref):
 ```jldoctest simdstored; filter = r"(SIMD\\.)?VecRange"
 julia> using LoopRecipes
 
-julia> foreach(simdstored(collect(1:10))) do (i, v)
+julia> foreach(simdstored(4, collect(1:10))) do (i, v)
            @show i v
        end;
 i = VecRange{4}(1)
@@ -206,7 +206,7 @@ julia> using SparseArrays
 
 julia> xs = SparseVector(10, [1, 3, 4, 7, 8], [1, 2, 3, 4, 5]);
 
-julia> foreach(simdstored(xs)) do (i, v)
+julia> foreach(simdstored(4, xs)) do (i, v)
            @show i v
        end;
 i = <4 x Int64>[1, 3, 4, 7]
@@ -262,7 +262,7 @@ julia> simddot′(xs, [1:10;])
 87
 ```
 """
-simdstored(xs) = simdstored(Val{4}(), xs)
+simdstored(xs) = simdstored(Val{pick_vector_width(eltype(xs))}(), xs)
 simdstored(width::Integer, xs) = simdstored(Val{width}(), xs)
 simdstored(width::Val, xs) = simdpairs(width, xs)
 function simdstored(width::Val, xs::AbstractSparseArray)
