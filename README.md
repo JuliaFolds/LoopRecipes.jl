@@ -11,7 +11,7 @@ See more in the [documentation](https://juliafolds.github.io/LoopRecipes.jl/dev)
 
 ## API summary
 
-* `unroll([factor,] xs)`: Unroll an array `xs` by a given `factor`.
+* `unroll(factor, xs)`: Unroll an array `xs` by a given `factor`.
 * `prefetching(xs)`: Prefetch each element in `xs`.  It works when
   `xs` is a nested data structure (e.g., vector of vectors, vector of
   strings).
