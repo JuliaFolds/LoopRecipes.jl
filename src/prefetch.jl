@@ -120,12 +120,7 @@ unsafe_prefetch
 
     quote
         $(Expr(:meta, :inline))
-        Base.llvmcall(
-            $IR,
-            Cvoid,
-            Tuple{Ptr{Cvoid}},
-            address,
-        )
+        Base.llvmcall($IR, Cvoid, Tuple{Ptr{Cvoid}}, address)
     end
 end
 

@@ -3,6 +3,7 @@ module LoopRecipes
 export prefetching, simdeachindex, simdpairs, simdstored, unroll
 
 using Base: @propagate_inbounds
+using FGenerators: @fgenerator, @yield
 using SIMD: VecRange
 using SparseArrays: AbstractSparseArray, nonzeroinds, nonzeros
 using Transducers:
@@ -24,7 +25,6 @@ using Transducers:
     unwrap,
     wrap,
     wrapping
-using FGenerators: @fgenerator, @yield
 
 include("utils.jl")
 include("unroll.jl")
