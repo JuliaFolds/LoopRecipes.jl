@@ -9,6 +9,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo = "https://github.com/JuliaFolds/LoopRecipes.jl",
+    repo = "github.com/JuliaFolds/LoopRecipes.jl",
     push_preview = true,
 )
