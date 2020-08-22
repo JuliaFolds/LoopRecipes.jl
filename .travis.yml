@@ -36,3 +36,4 @@ jobs:
           );
           '
       after_script: lscpu
+      if: type != push
