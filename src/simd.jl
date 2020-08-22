@@ -31,27 +31,27 @@ struct SIMDEachIndex{W} <: Foldable
     lastindex::Int
 end
 
-@inline function Transducers.__foldl__(rf, init, foldable::SIMDEachIndex{W}) where {W}
+@fgenerator(foldable::SIMDEachIndex) do
+    W = valof(foldable.width)
     i = foldable.firstindex
     n = foldable.lastindex - W
     lane = VecRange{W}(0)
     if i <= n
-        vacc = @next(rf, init, lane + i)
+        @yield lane + i
         i += W
         while i <= n
-            vacc = @next(rf, vacc, lane + i)
+            @yield lane + i
             i += W
         end
     end
     if i <= foldable.lastindex
-        acc = @next(rf, vacc, i)
+        @yield i
         i += 1
         while i <= foldable.lastindex
-            acc = @next(rf, acc, i)
+            @yield i
             i += 1
         end
     end
-    return complete(rf, acc)
 end
 
 """

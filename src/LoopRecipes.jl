@@ -24,6 +24,7 @@ using Transducers:
     unwrap,
     wrap,
     wrapping
+using FGenerators: @fgenerator, @yield
 
 include("utils.jl")
 include("unroll.jl")
