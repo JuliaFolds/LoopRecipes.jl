@@ -1,0 +1,38 @@
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+notifications:
+  email: false
+
+# Only build branches via PR to avoid running CI twice.
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+# https://docs.travis-ci.com/user/conditions-v1
+if: branch = master OR tag IS present OR type != push
+
+jobs:
+  allow_failures:
+    - julia: nightly
+  fast_finish: true
+  include:
+    - name: "Benchmark"
+      julia: 1.5
+      os: linux
+      before_install:
+        - unset JULIA_PROJECT
+        - julia -e 'using Pkg; pkg"add PkgBenchmark BenchmarkCI@0.1"'
+      install:
+        # Run benchmark outside `script` so that it's hidden by default:
+        - julia -e '
+          using PkgBenchmark, BenchmarkCI;
+          BenchmarkCI.judge();
+          '
+      script:
+        - julia -e 'using BenchmarkCI; BenchmarkCI.displayjudgement()'
+        - julia -e '
+          using BenchmarkCI;
+          BenchmarkCI.pushresult(;
+              title = "Benchmark result (via Travis)",
+              url = "git@github.com:JuliaFolds/LoopRecipes-data.git",
+              branch = "travis-benchmark-results",
+          );
+          '
+      after_script: lscpu
