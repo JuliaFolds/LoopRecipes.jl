@@ -7,6 +7,8 @@ LoopRecipes.jl provides several constructs for high-performance loops
 based on the extended `foldl` protocol of
 [Transducers.jl](https://github.com/JuliaFolds/Transducers.jl).
 
+See more in the [documentation](https://juliafolds.github.io/LoopRecipes.jl/dev).
+
 ## API summary
 
 * `unroll([factor,] xs)`: Unroll an array `xs` by a given `factor`.
