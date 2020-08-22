@@ -1,5 +1,8 @@
 # LoopRecipes: composable loops
 
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliafolds.github.io/LoopRecipes.jl/dev)
+[![GitHub Actions](https://github.com/JuliaFolds/LoopRecipes.jl/workflows/CI/badge.svg)](https://github.com/JuliaFolds/LoopRecipes.jl/actions?query=workflow%3ACI)
+
 LoopRecipes.jl provides several constructs for high-performance loops
 based on the extended `foldl` protocol of
 [Transducers.jl](https://github.com/JuliaFolds/Transducers.jl).
