@@ -54,6 +54,27 @@ end
     end
 end
 
+@inline function Base.iterate(foldable::SIMDEachIndex)
+    W = valof(foldable.width)
+    i = foldable.firstindex
+    n = foldable.lastindex - W
+    return iterate(foldable, (i, n))
+end
+
+@inline function Base.iterate(foldable::SIMDEachIndex, (i, n)::Tuple{Int,Int})
+    W = valof(foldable.width)
+    if i <= n
+        return (VecRange{W}(i), (i + W, n))
+    else
+        return iterate(foldable, i)
+    end
+end
+
+@inline function Base.iterate(foldable::SIMDEachIndex, i::Int)
+    i > foldable.lastindex && return nothing
+    return (i, i + 1)
+end
+
 """
     simdpairs([width,] xs)
 
