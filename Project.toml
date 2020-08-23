@@ -11,6 +11,7 @@ Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 VectorizationBase = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
 
 [compat]
+FGenerators = "0.1"
 SIMD = "2.0, 3.0"
 Transducers = "0.4"
 julia = "1"
