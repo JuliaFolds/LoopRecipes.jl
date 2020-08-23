@@ -13,4 +13,5 @@ VectorizationBase = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
 [compat]
 SIMD = "2.0, 3.0"
 Transducers = "0.4"
+VectorizationBase = "0.12"
 julia = "1"
